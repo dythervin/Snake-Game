@@ -13,7 +13,7 @@ namespace Obi
 		{
             ObiPathFrame section = generator.GetSectionAt(m);
             transform.position = generator.transform.TransformPoint(section.position);
-            transform.rotation = generator.transform.rotation * (Quaternion.LookRotation(section.tangent,section.binormal));
+            transform.rotation = generator.transform.rotation * (Quaternion.LookRotation(-section.tangent,section.binormal));
 		}
 
 	}

@@ -64,5 +64,10 @@ namespace Obi
 
             accumulatedTime += Time.deltaTime;
         }
+
+        public void SetSubsteps(int value)
+        {
+            substeps = value;
+        }
     }
 }

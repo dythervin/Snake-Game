@@ -26,9 +26,9 @@ namespace Obi
             }
         }
 
-        public delegate void ActorCallback(ObiActor actor);                     
-        public delegate void ActorStepCallback(ObiActor actor,float stepTime);
-        public delegate void ActorBlueprintCallback(ObiActor actor,ObiActorBlueprint blueprint);
+        public delegate void ActorCallback(ObiActor actor);
+        public delegate void ActorStepCallback(ObiActor actor, float stepTime);
+        public delegate void ActorBlueprintCallback(ObiActor actor, ObiActorBlueprint blueprint);
 
         /// <summary>
         /// Called when the actor blueprint has been loaded into the solver.
@@ -63,19 +63,19 @@ namespace Obi
         /// <summary>
         /// Called at the end of each frame.
         /// </summary>
-        public event ActorCallback OnInterpolate;                       
+        public event ActorCallback OnInterpolate;
 
-        [HideInInspector][NonSerialized] protected int m_ActiveParticleCount = 0;
+        [HideInInspector] [NonSerialized] protected int m_ActiveParticleCount = 0;
 
         /// <summary>
         /// Index of each one of the actor's particles in the solver.
         /// </summary>
-        [HideInInspector][NonSerialized] public int[] solverIndices;
+        [HideInInspector] [NonSerialized] public int[] solverIndices;
 
         /// <summary>
         /// For each of the actor's constraint types, offset of every batch in the solver.
         /// </summary>
-        [HideInInspector][NonSerialized] public List<int>[] solverBatchOffsets;
+        [HideInInspector] [NonSerialized] public List<int>[] solverBatchOffsets;
 
         protected ObiSolver m_Solver;
         protected bool m_Loaded = false;
@@ -161,7 +161,7 @@ namespace Obi
         {
             get
             {
-               return m_ActiveParticleCount;
+                return m_ActiveParticleCount;
             }
         }
 
@@ -259,7 +259,7 @@ namespace Obi
         /// This is mostly used when the actor needs to change some blueprint data at runtime,
         /// and you don't want to change the blueprint asset as this would affect all other actors using it. Tearable cloth and ropes
         /// make use of this.
-        public ObiActorBlueprint blueprint 
+        public ObiActorBlueprint blueprint
         {
             get
             {
@@ -472,9 +472,9 @@ namespace Obi
             {
                 int solverIndex = solverIndices[i];
 
-                m_Solver.positions[solverIndex] = 
-                m_Solver.prevPositions[solverIndex] = 
-                m_Solver.renderablePositions[solverIndex] = 
+                m_Solver.positions[solverIndex] =
+                m_Solver.prevPositions[solverIndex] =
+                m_Solver.renderablePositions[solverIndex] =
                 m_Solver.startPositions[solverIndex] = offset.MultiplyPoint3x4(m_Solver.positions[solverIndex]);
 
                 m_Solver.orientations[solverIndex] =
@@ -498,6 +498,27 @@ namespace Obi
             m_Solver.particleToActor[solverIndices[m_ActiveParticleCount]].indexInActor = actorIndex;
 
             solverIndices.Swap(actorIndex, m_ActiveParticleCount);
+        }
+
+        public void InsertActiveParticle(int targetActorIndex, in int from)
+        {
+            int fromSolverIndex = solverIndices[from];
+            int targetIndex = solverIndices[targetActorIndex];
+
+            int prevSolverIndex = targetIndex;
+
+            for (int i = targetActorIndex + 1; i <= from; i++)
+            {
+                m_Solver.particleToActor[prevSolverIndex].indexInActor = i;
+
+                int currSolverIndex = solverIndices[i];
+
+                solverIndices[i] = prevSolverIndex;
+                prevSolverIndex = currSolverIndex;
+            }
+
+            solverIndices[targetActorIndex] = fromSolverIndex;
+            m_Solver.particleToActor[fromSolverIndex].indexInActor = targetActorIndex;
         }
 
         /// <summary>
@@ -628,7 +649,6 @@ namespace Obi
 
             return null;
         }
-
 
 
         /// <summary>  
@@ -986,7 +1006,7 @@ namespace Obi
                     m_Solver.principalRadii[k] = bp.principalRadii[i];
 
                 if (bp.phases != null && i < bp.phases.Length)
-                    m_Solver.phases[k] = ObiUtils.MakePhase(bp.phases[i],0);
+                    m_Solver.phases[k] = ObiUtils.MakePhase(bp.phases[i], 0);
 
                 if (bp.restPositions != null && i < bp.restPositions.Length)
                     m_Solver.restPositions[k] = bp.restPositions[i];
@@ -1146,22 +1166,22 @@ namespace Obi
         public virtual void BeginStep(float stepTime)
         {
             if (OnBeginStep != null)
-                OnBeginStep(this,stepTime); 
+                OnBeginStep(this, stepTime);
         }
 
         public virtual void Substep(float substepTime)
         {
             if (OnSubstep != null)
-                OnSubstep(this,substepTime);
+                OnSubstep(this, substepTime);
         }
 
         public virtual void EndStep(float substepTime)
         {
             if (OnEndStep != null)
-                OnEndStep(this,substepTime);
+                OnEndStep(this, substepTime);
         }
 
-        public virtual void Interpolate() 
+        public virtual void Interpolate()
         {
             // Update particle renderable positions/orientations in the solver:
             if (!Application.isPlaying && isLoaded)

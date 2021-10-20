@@ -118,7 +118,8 @@ namespace Obi
 
             // Activate the particle:
             rope.ActivateParticle(targetIndex);
-            return rope.solverIndices[targetIndex];
+            rope.InsertActiveParticle(index + 1, targetIndex);
+            return rope.solverIndices[index + 1];
         }
 
         private void RemoveParticleAt(int index)
@@ -166,7 +167,7 @@ namespace Obi
                                 m_CursorElement = rope.elements[index];
                             }
                             else
-                                m_CursorElement = rope.elements[Mathf.Max(0,index - 1)];
+                                m_CursorElement = rope.elements[Mathf.Max(0, index - 1)];
                         }
                         else // negative direction:
                         {
